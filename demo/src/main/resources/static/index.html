@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kalkulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --paper: #e8edf5;
+        --grid: #d3dbe9;
+        --ink: #12203f;
+        --muted: #5d6b88;
+        --blue: #2b55f5;
+        --blue-d: #1d3fcc;
+        --sun: #ffd23f;
+        --red: #e5384f;
+        --card: #ffffff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Sora", system-ui, sans-serif;
+        color: var(--ink);
+        background-color: var(--paper);
+        background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+        background-size: 28px 28px;
+        padding: 40px 16px 64px;
+      }
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: clamp(28px, 5vw, 44px);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin: 0 0 6px;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 0 0 28px;
+      }
+
+      .calc {
+        background: var(--ink);
+        border-radius: 20px;
+        padding: 22px;
+        box-shadow: 8px 8px 0 var(--blue);
+      }
+      .calc.editing {
+        box-shadow: 8px 8px 0 var(--sun);
+      }
+      .eq {
+        display: grid;
+        grid-template-columns: 1fr 92px 1fr auto 1.2fr;
+        gap: 12px;
+        align-items: end;
+      }
+      .f label {
+        display: block;
+        color: #a9b6d6;
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+      .f input,
+      .f select {
+        width: 100%;
+        height: 56px;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        background: #fff;
+        color: var(--ink);
+        font:
+          600 22px "Sora",
+          sans-serif;
+        padding: 0 14px;
+        font-variant-numeric: tabular-nums;
+        outline: none;
+      }
+      .f select {
+        text-align: center;
+        cursor: pointer;
+        padding: 0 8px;
+      }
+      .f input:focus,
+      .f select:focus {
+        border-color: var(--sun);
+      }
+      .f input[readonly] {
+        background: var(--sun);
+        font-weight: 800;
+      }
+      .f input::placeholder {
+        color: #9aa6c2;
+      }
+      .eq-btn {
+        height: 56px;
+        width: 64px;
+        border: 0;
+        border-radius: 12px;
+        background: var(--blue);
+        color: #fff;
+        font: 800 28px "Sora";
+        cursor: pointer;
+        transition:
+          transform 0.08s,
+          background 0.15s;
+      }
+      .eq-btn:hover {
+        background: var(--blue-d);
+      }
+      .eq-btn:active {
+        transform: scale(0.94);
+      }
+      .editing .eq-btn {
+        background: var(--sun);
+        color: var(--ink);
+      }
+      .row2 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 14px;
+        min-height: 24px;
+        gap: 12px;
+      }
+      #msg {
+        color: #ff9aa8;
+        font-size: 14px;
+      }
+      #cancel {
+        display: none;
+        background: transparent;
+        border: 1px solid #5d6b88;
+        color: #d7def0;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .editing #cancel {
+        display: inline-block;
+      }
+
+      .panel {
+        margin-top: 34px;
+        background: var(--card);
+        border-radius: 20px;
+        padding: 8px 8px 14px;
+        border: 2px solid var(--ink);
+      }
+      .ph {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 14px 16px 6px;
+      }
+      .ph h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .ph span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 560px;
+      }
+      th {
+        text-align: left;
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 600;
+        padding: 10px 16px;
+        border-bottom: 2px solid var(--ink);
+      }
+      td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e3e8f2;
+        font-variant-numeric: tabular-nums;
+        font-size: 17px;
+      }
+      td.op {
+        font-weight: 800;
+        color: var(--blue);
+      }
+      td.res {
+        font-weight: 800;
+      }
+      tr.hl td {
+        background: #fff6cf;
+      }
+      .act {
+        display: flex;
+        gap: 8px;
+      }
+      .act button {
+        border: 2px solid var(--ink);
+        background: #fff;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font: 600 13px "Sora";
+        cursor: pointer;
+        color: var(--ink);
+      }
+      .act .ed:hover {
+        background: var(--sun);
+      }
+      .act .del {
+        border-color: var(--red);
+        color: var(--red);
+      }
+      .act .del:hover {
+        background: var(--red);
+        color: #fff;
+      }
+      .empty {
+        text-align: center;
+        color: var(--muted);
+        padding: 34px 16px;
+      }
+      button:focus-visible {
+        outline: 3px solid var(--sun);
+        outline-offset: 2px;
+      }
+
+      @media (max-width: 760px) {
+        .eq {
+          grid-template-columns: 1fr 1fr;
+        }
+        .eq .f:nth-child(2) {
+          grid-column: 2;
+        }
+        .eq-btn {
+          width: 100%;
+        }
+        .eq .f.res {
+          grid-column: 1/-1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Kalkulator</h1>
+      <p class="sub">Hitung, simpan ke PostgreSQL, lalu ubah atau hapus kapan saja.</p>
+
+      <section class="calc" id="calc">
+        <div class="eq">
+          <div class="f"><label for="b1">Bilangan 1</label><input id="b1" type="number" step="any" inputmode="decimal" placeholder="7" /></div>
+          <div class="f">
+            <label for="op">Operator</label>
+            <select id="op">
+              <option value="+">+</option>
+              <option value="-">−</option>
+              <option value="x" selected>×</option>
+              <option value="/">÷</option>
+            </select>
+          </div>
+          <div class="f"><label for="b2">Bilangan 2</label><input id="b2" type="number" step="any" inputmode="decimal" placeholder="5" /></div>
+          <button class="eq-btn" id="go" type="button" title="Hitung">=</button>
+          <div class="f res"><label for="res">Hasil</label><input id="res" readonly placeholder="35" /></div>
+        </div>
+        <div class="row2"><span id="msg" role="alert"></span><button id="cancel" type="button">Batal edit</button></div>
+      </section>
+
+      <section class="panel">
+        <div class="ph">
+          <h2>Riwayat operasi</h2>
+          <span id="count"></span>
+        </div>
+        <div class="wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Bilangan 1</th>
+                <th>Operator</th>
+                <th>Bilangan 2</th>
+                <th>Hasil</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const API = "/api/calculations";
+      const $ = (id) => document.getElementById(id);
+      const sym = { "+": "+", "-": "−", x: "×", "/": "÷" };
+      let editId = null,
+        lastId = null;
+
+      const fmt = (n) => {
+        const v = Number(n);
+        return Number.isInteger(v) ? String(v) : String(parseFloat(v.toFixed(10)));
+      };
+      const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+      const say = (t) => ($("msg").textContent = t || "");
+
+      // hanya angka: blok huruf (termasuk e, +) saat mengetik / paste
+      ["b1", "b2"].forEach((id) => {
+        const el = $(id);
+        el.addEventListener("keydown", (e) => {
+          if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !/[0-9.\-,]/.test(e.key)) e.preventDefault();
+          if (e.key === "Enter") $("go").click();
+        });
+        el.addEventListener("paste", (e) => {
+          const t = (e.clipboardData || window.clipboardData).getData("text");
+          if (!/^-?\d*[.,]?\d*$/.test(t.trim())) e.preventDefault();
+        });
+      });
+
+      async function load() {
+        const data = await (await fetch(API)).json();
+        $("count").textContent = data.length + " data";
+        $("rows").innerHTML = data.length
+          ? data
+              .map(
+                (c) => `
+    <tr class="${c.id === lastId ? "hl" : ""}">
+      <td>${fmt(c.bilangan1)}</td><td class="op">${sym[c.operator]}</td><td>${fmt(c.bilangan2)}</td><td class="res">${fmt(c.result)}</td>
+      <td><div class="act"><button class="ed" onclick='edit(${JSON.stringify({ id: c.id, a: fmt(c.bilangan1), o: c.operator, b: fmt(c.bilangan2) })})'>Edit</button>
+      <button class="del" onclick="del(${c.id},'${fmt(c.bilangan1)} ${sym[c.operator]} ${fmt(c.bilangan2)} = ${fmt(c.result)}')">Hapus</button></div></td></tr>`,
+              )
+              .join("")
+          : '<tr><td colspan="5" class="empty">Belum ada data. Isi dua bilangan lalu tekan =.</td></tr>';
+      }
+
+      async function save() {
+        say("");
+        const a = $("b1").value.trim(),
+          b = $("b2").value.trim();
+        if (a === "" || b === "" || isNaN(a) || isNaN(b)) {
+          say("Bilangan 1 dan 2 harus diisi dengan angka.");
+          return;
+        }
+        const body = JSON.stringify({ bilangan1: a, operator: $("op").value, bilangan2: b });
+        const r = await fetch(editId ? `${API}/${editId}` : API, { method: editId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body });
+        if (!r.ok) {
+          const e = await r.json().catch(() => ({}));
+          say(e.message || "Gagal menyimpan data.");
+          return;
+        }
+        const c = await r.json();
+        lastId = c.id;
+        $("res").value = fmt(c.result); // bilangan 1, operator, bilangan 2 tetap tampil
+        if (editId) reset(false);
+        load();
+      }
+
+      function edit(d) {
+        editId = d.id;
+        $("b1").value = d.a;
+        $("op").value = d.o;
+        $("b2").value = d.b;
+        $("res").value = "";
+        $("calc").classList.add("editing");
+        $("go").title = "Simpan perubahan";
+        say("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      function reset(clear = true) {
+        editId = null;
+        $("calc").classList.remove("editing");
+        $("go").title = "Hitung";
+        if (clear) {
+          $("b1").value = "";
+          $("b2").value = "";
+          $("res").value = "";
+          say("");
+        }
+      }
+      async function del(id, txt) {
+        if (!confirm(`Hapus "${txt}"?`)) return;
+        await fetch(`${API}/${id}`, { method: "DELETE" });
+        if (editId === id) reset();
+        load();
+      }
+      $("go").onclick = save;
+      $("cancel").onclick = () => reset();
+      load();
+    </script>
+  </body>
+</html>
